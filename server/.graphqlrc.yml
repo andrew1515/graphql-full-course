@@ -1,0 +1,2 @@
+schema: "schema/type-defs.js"
+documents: "schema/**/*.{graphql,js,ts,jsx,tsx}"

@@ -4,11 +4,15 @@ const typeDefs = gql`
   type User {
     id: ID!
     name: String!
+    # The ! mark is indicating, that the value should be never null. So when we query the User
+    # in the GraphQL API response the username should be never null.
     username: String!
-    age: Int!
+    age: Int
     nationality: Nationality!
-    friends: [User]
-    favoriteMovies: [Movie]
+    # What if we use ! mark at arrays?
+    # More here: https://stackoverflow.com/questions/46770501/graphql-non-nullable-array-list
+    friends: [User!]
+    favoriteMovies: [Movie!]
   }
 
   type Movie {
@@ -18,8 +22,13 @@ const typeDefs = gql`
     isInTheaters: Boolean!
   }
 
+  # This is a root type for queries. This type should contain all the queries existing in the API.
+  # Queries are for getting data from GraphQL API, so it is a "read" operation
   type Query {
     users: [User!]!
+    # Parametric query, which accepts an id with type ID
+    # We can also define custom types for these parameters. These types are called Input, not Type. More on this
+    # below on Mutations (but Inputs can be used also on Queries)
     user(id: ID!): User!
     movies: [Movie!]!
     movie(name: String!): Movie!
@@ -38,6 +47,8 @@ const typeDefs = gql`
   }
 
   type Mutation {
+    # So in the createUser mutation we should provide a property (Input) from the client and
+    # this property should have type CreateUserInput.
     createUser(input: CreateUserInput!): User
     updateUsername(input: UpdateUsernameInput!): User
     deleteUser(id: ID!): User
