@@ -23,12 +23,14 @@ const typeDefs = gql`
   }
 
   # This is a root type for queries. This type should contain all the queries existing in the API.
-  # Queries are for getting data from GraphQL API, so it is a "read" operation
+  # Queries are for getting data from GraphQL API, so it is a "read" operation.
+  # It needed to be called "Query", because Apollo Server will need that
   type Query {
     users: [User!]!
     # Parametric query, which accepts an id with type ID
     # We can also define custom types for these parameters. These types are called Input, not Type. More on this
-    # below on Mutations (but Inputs can be used also on Queries)
+    # below on Mutations (but Inputs can be used also on Queries).
+    # The ! mark has the same rules for parameters as for the response types (see above at the User type).
     user(id: ID!): User!
     movies: [Movie!]!
     movie(name: String!): Movie!
@@ -46,6 +48,8 @@ const typeDefs = gql`
     newUsername: String!
   }
 
+  # Root type for all mutations.
+  # Needed to be called "Mutation", because Apollo Server will need that.
   type Mutation {
     # So in the createUser mutation we should provide a property (Input) from the client and
     # this property should have type CreateUserInput.
