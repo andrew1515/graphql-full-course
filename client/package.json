@@ -4,8 +4,8 @@
     "start": "snowpack dev"
   },
   "dependencies": {
-    "@apollo/client": "^3.4.16",
-    "graphql": "^15.6.1",
+    "@apollo/client": "^3.7.15",
+    "graphql": "^16.6.0",
     "react": "^18.0.0-alpha-64931821a-20210808",
     "react-dom": "^18.0.0-alpha-64931821a-20210808",
     "web-vitals": "^3.3.1"

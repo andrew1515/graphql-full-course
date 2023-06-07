@@ -1,6 +1,4 @@
-const { gql } = require("apollo-server");
-
-const typeDefs = gql`
+const typeDefs = `#graphql
   type User {
     id: ID!
     name: String!
@@ -58,6 +56,7 @@ const typeDefs = gql`
     deleteUser(id: ID!): User
   }
 
+  # TODO comments
   enum Nationality {
     CANADA
     BRAZIL

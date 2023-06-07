@@ -1,4 +1,5 @@
 const DataLoader = require("dataloader");
+const { GraphQLError } = require("graphql");
 const _ = require("lodash");
 
 const { UserList, MovieList } = require("../FakeData");
@@ -39,6 +40,17 @@ const { UserList, MovieList } = require("../FakeData");
  * will resolve and we will get the friends list in the resolver for the given user (DataLoader will care about that, so .load() and .loadMany() function
  * will return only relevant data, not the full dataset loaded in the dataloader function - in our case "getUsersByIds").
  *
+ * Why separate resolver for "friends"?
+ * We should do separate resolvers for every field, which needs additional data load. The user's "name", "age", etc.
+ * fields are loaded within the user object, but "friends" is only an array of IDs of users, which are friends of the given user.
+ * In a real database, loading these "friends" will almost always need additional query.
+ * - Okay, but why just don't do this additional query in the "users" resolver?
+ * Because in that case we would lose one of the main benefits of GraphQL. We don't want to make the DB query if the GraphQL query from
+ * the client isn't containing the "friends" field. But if we do the additional DB query in the "users" resolver, this fact will be ignored and
+ * while it's true, that the "friends" field won't be returned in the response to the client, the additional DB query will be executed - completely
+ * unneccessarily. But if we have a separate resolver for this "friends" field and the client query isn't containing the "friends" field,
+ * the "friends" resolver won't be executed.
+ *
  * .load() vs .loadMany()
  *
  * load - is used, when we have one-to-one relationship, so f.e. Book has an Author, so we will have .load(authorId)
@@ -66,6 +78,24 @@ const resolvers = {
     user: (parent, args) => {
       const id = args.id;
       const user = _.find(UserList, { id: Number(id) });
+
+      if (!user) {
+        /**
+         * Throwing custom errors.
+         */
+        throw new GraphQLError(
+          `User with ID ${id} not exists in the FakeData.js database`,
+          {
+            extensions: {
+              // Overriding the default error code thrown by GraphQL
+              code: "USER_NOT_EXISTS",
+              // We can also add custom error properties
+              userId: id,
+            },
+          }
+        );
+      }
+
       return user;
     },
 
