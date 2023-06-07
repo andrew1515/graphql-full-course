@@ -20,6 +20,8 @@ const server = new ApolloServer({
         message: `User with ID ${formattedError.extensions.userId} not exists`,
       };
     }
+
+    return formattedError;
   },
   // Place for plugins - f.e. some Apollo Studio reporting or Sentry error handler or so...
   // plugins: []

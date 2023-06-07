@@ -70,8 +70,10 @@ const usersByIdLoader = new DataLoader(getUsersByIds);
 // --------------
 
 const resolvers = {
+  /**
+   * Resolvers for queries we defined in the Query type
+   */
   Query: {
-    // USER RESOLVERS
     users: () => {
       return UserList;
     },
@@ -109,8 +111,18 @@ const resolvers = {
       return movie;
     },
   },
+  /**
+   * But we can have resolvers for every type, not only for the main Query type.
+   * How it will work?
+   * Let's have the "user" query, which returns a User. User has a field named "friends",
+   * which has a separate resolver. Then GraphQL will run the resolver for the "user" query, then
+   * the resolver for the "friends" field and then he will combine all the data together and return
+   * the final object in the response, which will include also all the "friends" of the user.
+   *
+   * Why is this useful and good practice? Read above the 'Why separate resolver for "friends"?' section.
+   */
   User: {
-    friends: (parent) => {
+    friends: (parent, args) => {
       const friendsIds = parent.friends;
 
       if (!friendsIds) {
@@ -127,7 +139,6 @@ const resolvers = {
       );
     },
   },
-
   Mutation: {
     createUser: (parent, args) => {
       const user = args.input;
@@ -136,7 +147,6 @@ const resolvers = {
       UserList.push(user);
       return user;
     },
-
     updateUsername: (parent, args) => {
       const { id, newUsername } = args.input;
       let userUpdated;
@@ -149,7 +159,6 @@ const resolvers = {
 
       return userUpdated;
     },
-
     deleteUser: (parent, args) => {
       const id = args.id;
       _.remove(UserList, (user) => user.id === Number(id));

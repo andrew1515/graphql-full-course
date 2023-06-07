@@ -1,5 +1,7 @@
 const typeDefs = `#graphql
   type User {
+    # The ID type is a special type for unique identifiers. It is basically
+    # a String type with this special feature.
     id: ID!
     name: String!
     # The ! mark is indicating, that the value should be never null. So when we query the User
@@ -56,7 +58,10 @@ const typeDefs = `#graphql
     deleteUser(id: ID!): User
   }
 
-  # TODO comments
+  # If we want to restrict some field to certain list of values, we can
+  # define an enum type for that field.
+  # Enums are case-sensitive, so if we have all the enum items in the type with uppercase,
+  # the values in the data source should be also uppercase.
   enum Nationality {
     CANADA
     BRAZIL
@@ -68,3 +73,16 @@ const typeDefs = `#graphql
 `;
 
 module.exports = { typeDefs };
+
+/**
+ * Note about type conversions:
+ * If a given resolver is returning an object with a property of type String,
+ * but according to our typedefs it should be a number (f.e. Int), GraphQL will convert it
+ * to number (if possible). This is also true opposite way. In the end, it is true in general, if
+ * this situation happens, GraphQL will try to make the type conversion.
+ *
+ * However, this is not completely true for query parameters (like we have in the "user" query the "id" parameter).
+ * For ID type GraphQL will accept either Int or String, but for Int and String types we can provide only the exact type.
+ *
+ * Long story short, it's better to have exact types every time.
+ */
