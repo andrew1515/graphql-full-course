@@ -4,9 +4,9 @@ import { useQuery, useLazyQuery, gql, useMutation } from "@apollo/client";
 /**
  * Querying users
  *
- * We are using named query request. It is not required on queries (so when
- * we are getting data from the server), but it is requred on mutations and also
- * on queries with parameters.
+ * Query request syntax no. 1:
+ * This is a "named" query without parameters. It's a good practice to name the queries, it's easier to read and
+ * it provides an unified syntax.
  */
 const QUERY_ALL_USERS = gql`
   query GetAllUsers {
@@ -33,9 +33,9 @@ const QUERY_ALL_USERS = gql`
 `;
 
 /**
- * Using unnamed query request. If we have a query (getting data) and we don't need
- * to provide any parameters, then we can use unnamed ones. Also for queries we can
- * avoid the "query" keyword here (we can't avoid it at mutations though).
+ * Query request syntax no. 2:
+ * Using "unnamed" query request without parameters. For queries we can
+ * avoid the "query" keyword if we don't have any parameters (we can't avoid it at mutations though).
  */
 const QUERY_ALL_MOVIES = gql`
   {
@@ -48,13 +48,14 @@ const QUERY_ALL_MOVIES = gql`
 /**
  * Querying a movie by his name
  *
- * Because we are providing parameters to the query, we need to have named query.
- *
  * How we can actually provide the "name" parameter to the query? Search for "fetchMovie" in
  * this file (you can provide a "variables" object into the query).
+ *
+ * Query request syntax no. 3:
+ * "Unnamed" query request with parameter.
  */
 const GET_MOVIE_BY_NAME = gql`
-  query Movie($name: String!) {
+  query ($name: String!) {
     movie(name: $name) {
       name
       yearOfPublication
@@ -69,6 +70,9 @@ const GET_MOVIE_BY_NAME = gql`
  * (the property will be then processed in the corresponding resolver).
  * Mutations can also send values in response (in this case it will be a User - the newly created one),
  * and we want the "name" and the "id" of the user.
+ *
+ * Query request syntax no. 4:
+ * "Named" query request with parameter.
  */
 const CREATE_USER_MUTATION = gql`
   mutation CreateUser($input: CreateUserInput!) {

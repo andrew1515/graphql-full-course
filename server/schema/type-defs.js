@@ -36,6 +36,15 @@ const typeDefs = `#graphql
     movie(name: String!): Movie!
   }
 
+  # Inputs vs types and why are inputs needed?
+  # If we have a mutation parameter, we have to use "input"s instead of "type"s. Types basically
+  # won't work and they will throw an error if used in mutation parameters.
+  #
+  # But what's the difference?
+  # - We can make better separation, which structures are used where.
+  # - Inputs can have default values (see the "nationality" field below), types can't. Default
+  #   values are meaning, that if we don't send the value from the client, the property will have the
+  #   defined default value.
   input CreateUserInput {
     name: String!
     username: String!
@@ -69,6 +78,8 @@ const typeDefs = `#graphql
     GERMANY
     CHILE
     UKRAINE
+    SLOVAKIA
+    HUNGARY
   }
 `;
 
