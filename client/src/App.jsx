@@ -1,6 +1,7 @@
 import React from "react";
-import "./App.css";
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
+
+import "./App.css";
 import DisplayData from "./DisplayData";
 
 function App() {

@@ -84,6 +84,15 @@ const CREATE_USER_MUTATION = gql`
 `;
 
 function DisplayData() {
+  /**
+   * useState
+   *
+   * It is for defining a variable (state), which will be used in the component's template and
+   * also we will want to re-render the component when the value of the state changes.
+   * When we call setMovieSearched("new value"), the component will get re-rendered with the new
+   * value for the movieSearched. (So the value of the "movieSearched" is not mutated, the whole DisplayData function
+   * gets called again on "setMovieSearched" call, with the newly initialized "movieSearched" variable with a new value.)
+   */
   const [movieSearched, setMovieSearched] = useState("");
 
   // Create User States
@@ -92,15 +101,58 @@ function DisplayData() {
   const [age, setAge] = useState(0);
   const [nationality, setNationality] = useState("");
 
-  const { data, loading, refetch } = useQuery(QUERY_ALL_USERS);
-  const { data: movieData } = useQuery(QUERY_ALL_MOVIES);
-  const [fetchMovie, { data: movieSearchedData, error: movieError }] =
-    useLazyQuery(GET_MOVIE_BY_NAME);
+  /**
+   * useQuery
+   *
+   * This will execute a GraphQL query (getting the data).
+   * Executing the query will start immediately at this call. useQuery most probably utilizes the useState
+   * hook under the hood - the query is started an when the response is available from the server, an useState call
+   * is made and the component gets re-rendered (so the DisplayData gets called again).
+   *
+   * data - holding response from the query
+   * loading - whether the query is loading or the response is already available
+   * error - if the query ends with an error response
+   * referch - if we want to trigger the query again
+   *
+   * options:
+   * variables - if we have a query with parameter, we can provide those parameters there
+   */
+  const { data, loading, error, refetch } = useQuery(QUERY_ALL_USERS, {
+    // variables: {}
+  });
 
-  const [createUser] = useMutation(CREATE_USER_MUTATION);
+  const { data: movieData } = useQuery(QUERY_ALL_MOVIES);
+
+  /**
+   * useLazyQuery
+   *
+   * Same as useQuery, but the query will be not executed immediately, but on demand - so when the
+   * "fetchMovie" function is called.
+   *
+   * If we have a parametric query, we can provide the parameters in the same way as in case of useQuery (through
+   * the "variables" object) or we can provide them in the "fetchMovie" function itself (see below).
+   */
+  const [fetchMovie, { data: movieSearchedData, error: movieError }] =
+    useLazyQuery(GET_MOVIE_BY_NAME, {
+      // variables: {}
+    });
+
+  /**
+   * useMutation
+   *
+   * Executing the mutation. It will work similar to the useLazyQuery, so the mutation won't execute immediately, but on
+   * the call of the "createUser" function. Everything else is the same as at the useLazyQuery.
+   */
+  const [createUser] = useMutation(CREATE_USER_MUTATION, {
+    // variables: {}
+  });
 
   if (loading) {
     return <h1> DATA IS LOADING...</h1>;
+  }
+
+  if (error) {
+    return <h1>Error happened: {error.message}</h1>;
   }
 
   return (
@@ -148,6 +200,7 @@ function DisplayData() {
           Create User
         </button>
       </div>
+      {/* TODO: why data.users and not just data? */}
       {data &&
         data.users.map((user) => {
           return (
