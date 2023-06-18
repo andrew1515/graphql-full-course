@@ -2,6 +2,20 @@ import React, { useState } from "react";
 import { useQuery, useLazyQuery, gql, useMutation } from "@apollo/client";
 
 /**
+ * Fragments
+ *
+ * With fragments we can create reusable GraphQL query partials, which we can then use in multiple queries.
+ * The GetAgeAndName fragment is a fragment for some query, which will return an User. If we use this fragment in
+ * some query, we can replace the "name" and "age" fields with this fragment.
+ */
+const FRAGMENTS = gql`
+  fragment GetAgeAndName on User {
+    name
+    age
+  }
+`;
+
+/**
  * Querying users
  *
  * Query request syntax no. 1:
@@ -9,19 +23,22 @@ import { useQuery, useLazyQuery, gql, useMutation } from "@apollo/client";
  * it provides an unified syntax.
  */
 const QUERY_ALL_USERS = gql`
+  # Needs to be referenced here if we want to use the fragments in the actual query.
+  ${FRAGMENTS}
   query GetAllUsers {
     # The query name. For available queries, see type-defs.js
     # Then we provide all the fields what we want to load.
     users {
       id
-      name
-      age
+      # Using the fragment instead of "name" and "age"
+      ...GetAgeAndName
       username
       nationality
       # The "friends" field is a nested one (it is a type User), so we
       # need to define the concrete fields here too.
       friends {
-        name
+        id
+        ...GetAgeAndName
         # Same here, we need to define concrete fields to load.
         favoriteMovies {
           name

@@ -27,6 +27,19 @@ const server = new ApolloServer({
   // plugins: []
 });
 
-startStandaloneServer(server).then(({ url }) => {
+startStandaloneServer(server, {
+  /**
+   * For every resolver we can provide a context. The "context" function is like
+   * an Express middleware before the actual request handler (like an app.use),
+   * which will handle f.e. the authentication stuff and then provide the result
+   * of the authentication to the request handlers - the same is happening here: in the context
+   * we can handle f.e. the authentication, then return a context with the auth data (logged in user data f.e.).
+   */
+  context: ({ req, res }) => {
+    // It will contain the "customHeader" header - see App.jsx.
+    // console.log(req.headers);
+    return { req };
+  },
+}).then(({ url }) => {
   console.log(`YOUR API IS RUNNING AT: ${url} :)`);
 });

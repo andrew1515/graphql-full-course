@@ -115,14 +115,32 @@ const resolvers = {
    * But we can have resolvers for every type, not only for the main Query type.
    * How it will work?
    * Let's have the "user" query, which returns a User. User has a field named "friends",
-   * which has a separate resolver. Then GraphQL will run the resolver for the "user" query, then
+   * which has a separate resolver. GraphQL then will run the resolver for the "user" query, then
    * the resolver for the "friends" field and then he will combine all the data together and return
    * the final object in the response, which will include also all the "friends" of the user.
    *
    * Why is this useful and good practice? Read above the 'Why separate resolver for "friends"?' section.
+   *
+   * parent - it holds the resolved data of the previous level. Lets have a "user" query, which returns a User.
+   *   The resolver for the query will execute the query, then check whether some fields of the User have
+   *   some extra resolvers. They do, f.e. "friends", so GraphQL will execute the "friends" resolver for the
+   *   "friends" field. The "parent" in this "friends" resolver will be the resolved value of the "user" query, without
+   *   the values from the extra resolvers - so "friends" will be still an array of IDs in the "parent". That's the point,
+   *   we are going to resolve these IDs in the "friends" resolver.
+   *   Note, that the "parent" isn't a full User type, it is just a half-resolved one, so it can have also different fields.
+   *   We don't have to be "friends" in the parent, we can have also "friendIds" - in this case we would have
+   *   `const friendsIds = parent.friendIds;`. It is a good practice to have this unified, so every parent should have
+   *   the list of friends IDs under the same property and not like parent from the "user" resolver will have "friends" and
+   *   parent from the "users" resolver will have "friendIds"...
+   *
+   * args - accessing the query arguments
+   * context - accessing the context (see index.js)
+   * info - deep details about the GraphQL query
    */
   User: {
-    friends: (parent, args) => {
+    friends: (parent, args, context, info) => {
+      // It will contain the "customHeader" header - see App.jsx.
+      // console.log(context.req.headers);
       const friendsIds = parent.friends;
 
       if (!friendsIds) {
