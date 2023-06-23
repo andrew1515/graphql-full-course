@@ -37,23 +37,20 @@ const UserList = [
     age: 5,
     nationality: "CHILE",
   },
-];
-
-const AdminList = [
   {
-    id: 1,
+    id: 6,
     name: "Andrew",
     username: "andrew001",
     role: "SUPERADMIN",
   },
   {
-    id: 2,
+    id: 7,
     name: "Chris",
     username: "chris007",
     role: "ADMIN",
   },
   {
-    id: 3,
+    id: 8,
     name: "Jaro",
     username: "huskylover64",
     role: "ADMIN",
@@ -75,16 +72,22 @@ const MovieList = [
   },
   {
     id: 3,
+    name: "PedroTech The Movie",
+    yearOfPublication: 2035,
+    yearFirstAired: 2036,
+  },
+  {
+    id: 4,
     name: "Superbad",
     yearOfPublication: 2009,
     isInTheaters: true,
   },
   {
-    id: 4,
-    name: "PedroTech The Movie",
-    yearOfPublication: 2035,
-    isInTheaters: false,
+    id: 5,
+    name: "American Pie 6",
+    yearOfPublication: 2004,
+    yearFirstAired: 2006,
   },
 ];
 
-module.exports = { UserList, AdminList, MovieList };
+module.exports = { UserList, MovieList };

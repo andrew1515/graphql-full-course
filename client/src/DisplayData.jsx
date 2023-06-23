@@ -46,9 +46,18 @@ const QUERY_ALL_USERS = gql`
           id
           ...GetAgeAndName
           # Same here, we need to define concrete fields to load.
+          # Note: we are querying a query, which has an interface return type. More about this
+          # see the QUERY_ALL_MOVIES query.
           favoriteMovies {
+            __typename
             name
             yearOfPublication
+            ... on TvMovie {
+              yearFirstAired
+            }
+            ... on TheaterMovie {
+              isInTheaters
+            }
           }
         }
       }
@@ -66,11 +75,27 @@ const QUERY_ALL_USERS = gql`
  * Query request syntax no. 2:
  * Using "unnamed" query request without parameters. For queries we can
  * avoid the "query" keyword if we don't have any parameters (we can't avoid it at mutations though).
+ *
+ * "movies" query is returning an interface type. Querying such a query is quite similar as querying a query with
+ * union return type (see QUERY_ALL_USERS). The main difference is, that we can query the common fields (so which are
+ * defined also in the interface itself) outside the "... on TypeName" fragments. So if we want to query f.e. only
+ * the movie "name", we don't even need to define those "... on TypeName" fragments, because the "name" is
+ * present in all the types which are implementing the interface (Movie). In case of unions this isn't possible,
+ * because the relation between the members of an union are distinct (so exactly one member of the union type can be true at
+ * the same time) and GraphQL doesn't check the members of the unions in depth, whether they contain some common fields.
  */
 const QUERY_ALL_MOVIES = gql`
   {
     movies {
+      __typename
       name
+      yearOfPublication
+      ... on TvMovie {
+        yearFirstAired
+      }
+      ... on TheaterMovie {
+        isInTheaters
+      }
     }
   }
 `;
@@ -87,8 +112,15 @@ const QUERY_ALL_MOVIES = gql`
 const GET_MOVIE_BY_NAME = gql`
   query ($name: String!) {
     movie(name: $name) {
+      __typename
       name
       yearOfPublication
+      ... on TvMovie {
+        yearFirstAired
+      }
+      ... on TheaterMovie {
+        isInTheaters
+      }
     }
   }
 `;
@@ -256,7 +288,17 @@ function DisplayData() {
 
       {movieData &&
         movieData.movies.map((movie) => {
-          return <h1>Movie Name: {movie.name}</h1>;
+          return (
+            <>
+              <h1>Movie Name: {movie.name}</h1>
+              {movie.__typename === "TheaterMovie" && (
+                <p>Is in theaters: {movie.isInTheaters ? "Yes" : "No"}</p>
+              )}
+              {movie.__typename === "TvMovie" && (
+                <p>First aired: {movie.yearFirstAired}</p>
+              )}
+            </>
+          );
         })}
 
       <div>
@@ -285,6 +327,15 @@ function DisplayData() {
               <h1>
                 Year Of Publication: {movieSearchedData.movie.yearOfPublication}
               </h1>{" "}
+              {movieSearchedData.movie.__typename === "TheaterMovie" && (
+                <p>
+                  Is in theaters:{" "}
+                  {movieSearchedData.movie.isInTheaters ? "Yes" : "No"}
+                </p>
+              )}
+              {movieSearchedData.movie.__typename === "TvMovie" && (
+                <p>First aired: {movieSearchedData.movie.yearFirstAired}</p>
+              )}
             </div>
           )}
           {movieError && <h1> There was an error fetching the data</h1>}

@@ -77,9 +77,9 @@ const resolvers = {
     users: () => {
       /**
        * As we defined in type-defs, the "users" query can return either User-s and Admin-s
-       * because of the UserAdmin union return type of the query.
+       * because of the UserAdmin union return type of the query. UserList contains both User-s and Admin-s.
        */
-      return [...UserList, ...AdminList];
+      return UserList;
     },
     user: (parent, args) => {
       const id = args.id;
@@ -168,7 +168,8 @@ const resolvers = {
    * In our case we have the UserAdmin union type, which is union of the User and Admin types.
    * Admin type has a specific field "role", which the User type doesn't include, so
    * when the given object from the parent query (in our case "users") has a "role" property, it means
-   * that we need to return the Admin type, otherwise the User type.
+   * that we need to return the Admin type, otherwise the User type. We need to return the name of the
+   * concrete GraphQL type.
    *
    * What is that "obj"?
    * It is basically the parent object (as we have it also in other resolvers, f.e. User.friends), we just
@@ -188,6 +189,21 @@ const resolvers = {
       }
 
       return "User";
+    },
+  },
+  /**
+   * Similar to union types, we need to define a special resolver (__resolveType) also
+   * for interfaces. The reason is the same - GraphQL needs to know the exact type of the resolved data.
+   * Currently the Movie interface is implemented by TvMovie and TheaterMovie type, so we should decide,
+   * whether the current object has a TvMovie or TheaterMovie type.
+   */
+  Movie: {
+    __resolveType: (obj) => {
+      if (obj.yearFirstAired) {
+        return "TvMovie";
+      }
+
+      return "TheaterMovie";
     },
   },
   Mutation: {

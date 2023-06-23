@@ -22,7 +22,14 @@ const typeDefs = `#graphql
     role: String!
   }
 
-  type Movie {
+  type TvMovie implements Movie {
+    id: ID!
+    name: String!
+    yearOfPublication: Int!
+    yearFirstAired: Int!
+  }
+
+  type TheaterMovie implements Movie {
     id: ID!
     name: String!
     yearOfPublication: Int!
@@ -97,13 +104,27 @@ const typeDefs = `#graphql
     SUPERADMIN
   }
 
-  # Union type
+  # Union types
+  # 
   # If we are returning a union from a query, it means that the returned value
   # can be either of the types defined in union. It is quite the same as the union
   # types in Typescript.
   # Unions in GraphQL can be composed only from types - so every member of a union
   # should be a "type".
   union UserAdmin = User | Admin
+
+  # Interfaces
+  #
+  # Interfaces are useful, when we have multiple types with some similar base properties.
+  # We can then return an interface type from a resolver.
+  # 
+  # Differences between unions and interfaces: this is more explainable on the client side, so
+  # check DisplayData.jsx.
+  interface Movie {
+    id: ID!
+    name: String!
+    yearOfPublication: Int!
+  }
 `;
 
 module.exports = { typeDefs };
