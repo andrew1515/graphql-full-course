@@ -2,7 +2,7 @@ const DataLoader = require("dataloader");
 const { GraphQLError } = require("graphql");
 const _ = require("lodash");
 
-const { UserList, MovieList } = require("../FakeData");
+const { UserList, MovieList, AdminList } = require("../FakeData");
 
 /**
  * Why do we need DataLoader?
@@ -75,7 +75,11 @@ const resolvers = {
    */
   Query: {
     users: () => {
-      return UserList;
+      /**
+       * As we defined in type-defs, the "users" query can return either User-s and Admin-s
+       * because of the UserAdmin union return type of the query.
+       */
+      return [...UserList, ...AdminList];
     },
     user: (parent, args) => {
       const id = args.id;
@@ -155,6 +159,35 @@ const resolvers = {
         (movie) =>
           movie.yearOfPublication >= 2000 && movie.yearOfPublication <= 2010
       );
+    },
+  },
+  /**
+   * If a query is returning a union type, we need to define a resolver for the
+   * union type itself. We need to define a special resolver called __resolveType, where we
+   * need to write the logic for deciding, when to return which type from the union.
+   * In our case we have the UserAdmin union type, which is union of the User and Admin types.
+   * Admin type has a specific field "role", which the User type doesn't include, so
+   * when the given object from the parent query (in our case "users") has a "role" property, it means
+   * that we need to return the Admin type, otherwise the User type.
+   *
+   * What is that "obj"?
+   * It is basically the parent object (as we have it also in other resolvers, f.e. User.friends), we just
+   * called it "obj", because I think it gives more sense in this case.
+   * In our case, the "users" query is returning an array, so the __resolveType will be called for
+   * every array element (as it works for other, regular resolvers, f.e. User.friends).
+   *
+   * Why is this needed even? Why we can't just have the "users" resolver, why is this "__resolveType" resolver needed?
+   * GraphQL can't decide just according to the object in the array, which type they are, on other hand
+   * GraphQL need to know the exact type for every item in the array. So we need to do this specific resolver.
+   * A practical reason for this is in DisplayData.jsx.
+   */
+  UserAdmin: {
+    __resolveType: (obj) => {
+      if (obj.role) {
+        return "Admin";
+      }
+
+      return "User";
     },
   },
   Mutation: {

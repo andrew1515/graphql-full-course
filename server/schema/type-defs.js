@@ -15,6 +15,13 @@ const typeDefs = `#graphql
     favoriteMovies: [Movie!]
   }
 
+  type Admin {
+    id: ID!
+    name: String!
+    username: String!
+    role: String!
+  }
+
   type Movie {
     id: ID!
     name: String!
@@ -26,7 +33,10 @@ const typeDefs = `#graphql
   # Queries are for getting data from GraphQL API, so it is a "read" operation.
   # It needed to be called "Query", because Apollo Server will need that
   type Query {
-    users: [User!]!
+    # Union type - see below for more details
+    # In this case the UserAdmin union array return type means, that
+    # we are returning an array, which can contain either User-s and Admin-s
+    users: [UserAdmin!]!
     # Parametric query, which accepts an id with type ID
     # We can also define custom types for these parameters. These types are called Input, not Type. More on this
     # below on Mutations (but Inputs can be used also on Queries).
@@ -81,6 +91,19 @@ const typeDefs = `#graphql
     SLOVAKIA
     HUNGARY
   }
+
+  enum AdminRole {
+    ADMIN
+    SUPERADMIN
+  }
+
+  # Union type
+  # If we are returning a union from a query, it means that the returned value
+  # can be either of the types defined in union. It is quite the same as the union
+  # types in Typescript.
+  # Unions in GraphQL can be composed only from types - so every member of a union
+  # should be a "type".
+  union UserAdmin = User | Admin
 `;
 
 module.exports = { typeDefs };

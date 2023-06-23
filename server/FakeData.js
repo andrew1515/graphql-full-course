@@ -39,6 +39,27 @@ const UserList = [
   },
 ];
 
+const AdminList = [
+  {
+    id: 1,
+    name: "Andrew",
+    username: "andrew001",
+    role: "SUPERADMIN",
+  },
+  {
+    id: 2,
+    name: "Chris",
+    username: "chris007",
+    role: "ADMIN",
+  },
+  {
+    id: 3,
+    name: "Jaro",
+    username: "huskylover64",
+    role: "ADMIN",
+  },
+];
+
 const MovieList = [
   {
     id: 1,
@@ -66,4 +87,4 @@ const MovieList = [
   },
 ];
 
-module.exports = { UserList, MovieList };
+module.exports = { UserList, AdminList, MovieList };

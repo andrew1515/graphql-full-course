@@ -29,21 +29,34 @@ const QUERY_ALL_USERS = gql`
     # The query name. For available queries, see type-defs.js
     # Then we provide all the fields what we want to load.
     users {
-      id
-      # Using the fragment instead of "name" and "age"
-      ...GetAgeAndName
-      username
-      nationality
-      # The "friends" field is a nested one (it is a type User), so we
-      # need to define the concrete fields here too.
-      friends {
+      # The response GraphQL type. If we have an array, we will get the type for every array elem.
+      __typename
+      # "users" query is returning a union type. On server, in the special "__resolveType" we resolve the type
+      # for the response (for every array elem). So the server will know for every array elem, which type it is.
+      # According to this, we can query different fields for each union member.
+      ... on User {
         id
+        username
+        # Using the fragment instead of "name" and "age"
         ...GetAgeAndName
-        # Same here, we need to define concrete fields to load.
-        favoriteMovies {
-          name
-          yearOfPublication
+        nationality
+        # The "friends" field is a nested one (it is a type User), so we
+        # need to define the concrete fields here too.
+        friends {
+          id
+          ...GetAgeAndName
+          # Same here, we need to define concrete fields to load.
+          favoriteMovies {
+            name
+            yearOfPublication
+          }
         }
+      }
+      ... on Admin {
+        id
+        name
+        username
+        role
       }
     }
   }
@@ -217,18 +230,26 @@ function DisplayData() {
           Create User
         </button>
       </div>
-      {/* TODO: why data.users and not just data? */}
       {data &&
         data.users.map((user) => {
           return (
             <div>
               <h1>Name: {user.name}</h1>
               <h1>Username: {user.username}</h1>
-              <h1>Age: {user.age}</h1>
-              <h1>Nationality: {user.nationality}</h1>
-              <h1>
-                Friends: {user.friends?.map((friend) => friend.name) ?? "none"}
-              </h1>
+              {/* A practical usage of the __typename field */}
+              {user.__typename === "Admin" && <h1>Role: {user.role}</h1>}
+              {user.__typename === "User" && (
+                <>
+                  {" "}
+                  <h1>Age: {user.age}</h1>
+                  <h1>Nationality: {user.nationality}</h1>
+                  <h1>
+                    Friends:{" "}
+                    {user.friends?.map((friend) => friend.name) ?? "none"}
+                  </h1>
+                </>
+              )}
+              <hr />
             </div>
           );
         })}
